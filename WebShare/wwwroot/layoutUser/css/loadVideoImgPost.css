@@ -1,0 +1,13 @@
+﻿#listImageVideo {
+    top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+    #listImageVideo img,
+    #listImageVideo video {
+        border-radius: 5px;
+        width: 115px;
+        height: 150px;
+        margin: 0 10px 10px 0;
+    }

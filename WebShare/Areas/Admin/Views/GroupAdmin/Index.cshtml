@@ -1,0 +1,56 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model IEnumerable<WebShare.Models.Group>
+
+@{
+    ViewData["Title"] = "list";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Nhóm</h1>
+
+<!-- Thêm nút để xóa các bản ghi đã chọn -->
+<table class="table table-bordered data-table">
+    <thead>
+        <tr>
+           
+            <th>
+                Tên nhóm
+            </th>
+            <th>
+                Ảnh đại diện
+            </th>
+            <th>
+                Ảnh bìa
+            </th>
+
+            <th>Chức năng</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var i = 0;
+        }
+        @foreach (var item in Model)
+        {
+            <tr>
+                
+              
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    <img src="~/image/upload/@item.Avatar" />
+                </td>
+                <td>
+                    <img src="~/image/upload/@item.CoverImage" />
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-gradient-success btn-rounded btn-fw">Sửa</a>
+                    
+                </td>
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+

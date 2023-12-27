@@ -1,0 +1,10 @@
+﻿.image-upload-container {
+    display: flex;
+    align-items: center;
+}
+
+    .image-upload-container img {
+        max-width: 200px;
+        margin-left: 10px;
+        border-radius: 5px;
+    }

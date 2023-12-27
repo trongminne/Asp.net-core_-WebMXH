@@ -1,0 +1,71 @@
+﻿@model IEnumerable<WebShare.Models.User>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Người dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Tài khoản</h1>
+<p>
+    <button id="btnDeleteSelected" class="btn btn-gradient-danger btn-rounded btn-fw" onclick="deleteSelectedItems()">Xóa Chọn</button>
+</p>
+<!-- Thêm nút để xóa các bản ghi đã chọn -->
+<table class="table table-bordered data-table" id="data_product">
+    <thead>
+        <tr>
+            <th>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input class="checkbox" type="checkbox" onchange="checkAll(this)">
+                    </label>
+                </div>
+            </th>
+            <th>STT</th>
+            <th>
+                Họ tên
+            </th>
+            <th>
+                Số điện thoại
+            </th>
+            <th>
+                Avatar
+            </th>
+
+            <th>Chức năng</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var i = 0;
+        }
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input class="checkbox" type="checkbox" id="checkkhoa" value="@item.Id">
+                        </label>
+                    </div>
+                </td>
+                <td>@(i + 1)</td>
+                <td> @item.Fullname</td>
+                <td> @item.Sdt</td>
+                <td>
+                    <img src="~/image/upload/@item.Avatar" />
+                </td>
+                <td>
+                    <form asp-action="delete" method="post" enctype="multipart/form-data" style="margin-top: 10px">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <div class="form-group">
+                            <input type="submit" value="Xoá" class="btn btn-gradient-danger btn-rounded btn-fw" />
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+

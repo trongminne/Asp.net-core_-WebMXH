@@ -1,0 +1,86 @@
+﻿@model WebShare.Models.Post
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+}
+
+<link href="~/layoutuser/css/loadvideoimgpost.css" rel="stylesheet" />
+
+<div class="col-lg-9">
+    <div class="central-meta">
+        <span class="create-post">Sửa bài viết</span>
+        <div class="page-createbox">
+            <form method="post" action="/Post/Edit" enctype="multipart/form-data" class="c-form">
+                <div class="row">
+                    <input name="id" type="hidden" value="@Model.Id">
+
+                    <input asp-for="IdUser" type="hidden" value="@ViewContext.HttpContext.Session.GetString("UserId")">
+
+                    <div class="col-lg-12">
+                        <label asp-for="IdSub" class="control-label">Môn học</label>
+                        <select asp-for="IdSub" name="IdSub" class="form-control" asp-items="@(ViewData["subjectList"] as List<SelectListItem>)"></select>
+                        <span asp-validation-for="IdSub" class="text-danger"></span>
+                    </div>
+                    <br />
+                    <div class="col-lg-12">
+                        <label class="control-label">Nội dung bài viết</label>
+                        <input name="Contents" type="text" placeholder="Nhập nội dung bài viết" value="@Model.Contents" required>
+                    </div>
+                    <div class="col-lg-12">
+                        <label asp-for="IdSub" class="control-label">Hình ảnh | Video</label>
+                        <i class="fa fa-video-camera" style="display: none"></i>
+                        <label class="fileContainer">
+                            <input type="file" name="Files" accept="video/*" onchange="handleFiles(this.files, 'listImageVideo')">
+                        </label>
+                        <i class="fa fa-video-camera"></i>
+                        <label class="fileContainer">
+                            <input type="file" name="Files" accept="image/*" multiple onchange="handleFiles(this.files, 'listImageVideo')">
+
+                        </label>
+                        <i class="fa fa-image"></i>
+                        <label class="fileContainer">
+                            <input type="file" name="Files" accept="image/*" multiple onchange="handleFiles(this.files, 'listImageVideo')">
+
+                        </label>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    @if (Model.Filename != null)
+                    {
+                        foreach (var fileName in Model.Filename.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            <div class="image-video-preview">
+                                @if (fileName.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
+                               fileName.EndsWith(".webm", StringComparison.OrdinalIgnoreCase) ||
+                               fileName.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <video controls style="width: 100%; border-radius: 10px">
+                                        <source src="~/image/upload/@fileName.Trim()" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                }
+                                else
+                                {
+                                    <img src="~/image/upload/@fileName.Trim()" style="margin-top: 10px; border-radius: 5px" />
+                                }
+                            </div>
+                        }
+
+                    }
+                </div>
+                <div class="col-lg-12" id="listImageVideo">
+                </div>
+                <br />
+                <div class="col-lg-12">
+                    <button class="main-btn" type="submit" data-ripple="">Lưu</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script src="~/layoutuser/js/loadvideoimgpost.js"></script>
+
+
+

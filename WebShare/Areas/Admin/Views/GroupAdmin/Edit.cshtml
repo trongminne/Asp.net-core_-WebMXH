@@ -1,0 +1,58 @@
+﻿@model WebShare.Models.Group
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "edit";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Đang sửa nhóm: @Model.Name</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Tên nhóm</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Avatar" class="control-label">Ảnh đại diện</label>
+                <input type="file" name="avatar" class="form-control" accept="image/*" id="imageUpload" />
+                <br />
+
+                @if (!string.IsNullOrWhiteSpace(Model.Avatar))
+                {
+                    <img id="oldImage" src="~/image/upload/@Model.Avatar" alt="Ảnh đại diện" width="150px" style="border-radius:5px" />
+                }
+
+                <img id="previewImage" src="#" alt="Ảnh đại diện" style="display: none; width: 150px; border-radius: 5px" />
+
+                <span asp-validation-for="Avatar" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CoverImage" class="control-label">Ảnh bìa</label>
+                <input type="file" name="avatarCover" class="form-control" accept="image/*" id="imageUpload1" />
+                <br />
+
+                @if (!string.IsNullOrWhiteSpace(Model.CoverImage))
+                {
+                    <img id="oldImage1" src="~/image/upload/@Model.CoverImage" alt="Ảnh đại diện" width="150px" style="border-radius:5px" />
+                }
+
+                <img id="previewImage1" src="#" alt="Ảnh đại diện" style="display: none; width: 150px; border-radius: 5px" />
+
+                <span asp-validation-for="CoverImage" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Lưu" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<script src="~/layoutadmin/assets/js/loadedit.js"></script>
+<link href="~/layoutadmin/assets/css/loadedit.css" rel="stylesheet" />

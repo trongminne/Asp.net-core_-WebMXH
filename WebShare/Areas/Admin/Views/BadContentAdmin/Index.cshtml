@@ -1,0 +1,65 @@
+﻿@model IEnumerable<WebShare.Models.BadContent>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "list";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Nội dung xấu</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-gradient-primary btn-rounded btn-fw">Tạo nội dung xấu</a>
+    <button id="btnDeleteSelected" class="btn btn-gradient-danger btn-rounded btn-fw" onclick="deleteSelectedItems()">Xóa Chọn</button>
+</p>
+
+<!-- Thêm nút để xóa các bản ghi đã chọn -->
+<table class="table table-bordered data-table" id="data_product">
+    <thead>
+        <tr>
+            <th>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input class="checkbox" type="checkbox" onchange="checkAll(this)">
+                    </label>
+                </div>
+            </th>
+            <th>STT</th>
+            <th>
+                Nội dung xấu
+            </th>
+
+            <th>Chức năng</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var i = 0;
+        }
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input class="checkbox" type="checkbox" id="checkkhoa" value="@item.Id">
+                        </label>
+                    </div>
+                </td>
+                <td>@(i + 1)</td>
+                <td> @item.Badcontent1</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-gradient-success btn-rounded btn-fw">Sửa</a>
+                    <form asp-action="delete" method="post" enctype="multipart/form-data" style="margin-top: 10px">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <div class="form-group">
+                            <input type="submit" value="Xoá" class="btn btn-gradient-danger btn-rounded btn-fw" />
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+

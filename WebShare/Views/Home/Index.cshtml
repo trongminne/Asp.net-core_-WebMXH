@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container" id="container" style="opacity: 0.7">
+    <div class="form-container sign-up">
+        <form method="post" action="Home/Register" enctype="multipart/form-data">
+            <h1>Đăng kí</h1>
+            <div class="social-icons">
+                <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
+                <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
+                <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
+            </div>
+            <span>Nhập thông tin đăng kí vào form</span>
+            <input type="text" name="Username" placeholder="Tài khoản">
+            <input type="password" name="Password" placeholder="Mật khẩu">
+            <input type="email" name="Email" placeholder="Email">
+            <input type="file" name="avatar" accept="image/*">
+            <button type="submit">Đăng kí</button>
+        </form>
+    </div>
+    <div class="form-container sign-in">
+        <form method="post" action="Home/Index">
+            <h1>Đăng nhập</h1>
+            <div class="social-icons">
+                <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
+                <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
+                <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
+            </div>
+            <span>Nhập tài khoản & mật khẩu vào form</span>
+            <input type="text" name="Username" placeholder="Tài khoản">
+            <input type="password" name="Password" placeholder="Mật khẩu">
+            <a href="#">Bạn quên mật khẩu?</a>
+            <button>Đăng nhập</button>
+        </form>
+    </div>
+    <div class="toggle-container">
+        <div class="toggle">
+            <div class="toggle-panel toggle-left">
+                <h1>Xin chào!</h1>
+                <p>Nếu bạn đã có tài khoản hãy bấm vào nút đăng nhập</p>
+                <button class="hidden" id="login">Đăng nhập</button>
+            </div>
+            <div class="toggle-panel toggle-right">
+                <h1>Xin chào!</h1>
+                <p>Nếu bạn chưa có tài khoản hãy bấm vào nút đăng kí</p>
+                <button class="hidden" id="register">Đăng kí</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

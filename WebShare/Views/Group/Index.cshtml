@@ -1,0 +1,517 @@
+﻿@model CombinedViewModel
+@using System.Globalization;
+@using Humanizer;
+<!-- Phần mã Razor còn lại của file -->
+@using System.IO;
+@using WebShare.Helpers
+
+@{
+    WebShareContext db = new();
+
+    var imageHelper = new ImageHelper();
+    // Hàm định dạng thời gian
+    string FormatTimeDifference(TimeSpan timeSpan, CultureInfo culture)
+    {
+        if (timeSpan.TotalSeconds < 60)
+        {
+            return $"{(int)timeSpan.TotalSeconds} giây";
+        }
+        else if (timeSpan.TotalMinutes < 60)
+        {
+            return $"{(int)timeSpan.TotalMinutes} phút";
+        }
+        else if (timeSpan.TotalHours < 24)
+        {
+            return $"{(int)timeSpan.TotalHours} giờ";
+        }
+        else if (timeSpan.TotalDays < 30)
+        {
+            return $"{(int)timeSpan.TotalDays} ngày";
+        }
+        else if (timeSpan.TotalDays < 365)
+        {
+            return $"{(int)(timeSpan.TotalDays / 30)} tháng";
+        }
+        else
+        {
+            return $"{(int)(timeSpan.TotalDays / 365)} năm";
+        }
+    }
+}
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+
+}
+<link href="~/layoutuser/css/custom_select.css" rel="stylesheet" />
+<link href="~/layoutuser/css/loadvideoimgpost.css" rel="stylesheet" />
+<link href="~/layoutuser/css/loadvideoimgcomment.css" rel="stylesheet" />
+<div class="col-lg-9">
+    <div class="central-meta postbox" onclick="toggleElements()">
+        <span class="create-post">Đăng bài</span>
+        <div class="new-postbox">
+            <figure>
+                <img width="35px" src="~/image/upload/@ViewContext.HttpContext.Session.GetString("Avatar")" alt="">
+            </figure>
+            <div class="newpst-input">
+                <form id="postForm" method="post" action="/Group/Post" enctype="multipart/form-data" onsubmit="return validateForm()">
+
+                    <textarea rows="2" name="Contents" placeholder="Nội dung hỏi bài..." required></textarea>
+
+                    <input type="hidden" name="IdUser" value="@ViewContext.HttpContext.Session.GetString("UserId")" />
+                    <div class="attachments">
+                        <ul>
+                            <li>
+                                <i class="fa fa-video-camera"></i>
+                                <label class="fileContainer">
+                                    <input type="file" name="Files" accept="video/*" onchange="handleFiles(this.files, 'listImageVideo')">
+                                </label>
+                            </li>
+                            <li>
+                                <i class="fa fa-image"></i>
+                                <label class="fileContainer">
+                                    <input type="file" name="Files" accept="image/*" multiple onchange="handleFiles(this.files, 'listImageVideo')">
+
+                                </label>
+                            </li>
+                        </ul>
+
+                    </div>
+
+
+                    <div class="select">
+                        <select id="categoryDropdown" onchange="loadSubjects()" required>
+                            <option value="">Chọn lĩnh vực</option>
+                            @foreach (var category in ViewBag.Categories)
+                            {
+                                <option value="@category.Id">@category.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="select">
+                        <select id="subjectDropdown" name="IdSub" required>
+                            <option value="">Chọn môn học</option>
+                        </select>
+                    </div>
+                    @section Scripts
+                        {
+                        <script>
+                            function validateForm() {
+
+                                var selectedSubject = $("#subjectDropdown").val();
+                                if (selectedSubject == "Chọn môn học") {
+                                    alert("Vui lòng chọn môn học!");
+                                    return false; // Ngăn chặn form được submit
+                                }
+
+                                // Các logic kiểm tra khác nếu cần
+
+                                return true; // Cho phép form được submit
+                            }
+                            function loadSubjects() {
+                                var categoryId = $("#categoryDropdown").val();
+                                console.log(categoryId);
+
+                                $.ajax({
+                                    url: '/Group/GetSubjectsByCategoryId',
+                                    type: 'GET',
+                                    data: { categoryId: categoryId },
+                                    success: function (data) {
+                                        console.log(data);
+
+                                        if (data && data.length > 0) {
+                                            // Dữ liệu hợp lệ, xử lý dropdown
+                                            $("#subjectDropdown").empty();
+                                            $("#subjectDropdown").append('<option>Chọn môn học</option>');
+
+                                            $.each(data, function (index, item) {
+                                                $("#subjectDropdown").append('<option value="' + item.id + '">' + item.name + '</option>');
+                                            });
+                                        } else {
+                                            // Dữ liệu không hợp lệ hoặc rỗng
+                                            console.error('Invalid or empty data received.');
+                                        }
+                                    },
+                                    error: function (error) {
+                                        // Xử lý lỗi
+                                        console.error('Error:', error);
+                                    }
+                                });
+                            }
+                        </script>
+
+                    }
+                    <!-- jQuery -->
+                    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+                    <button class="post-btn" type="submit" data-ripple="">Đăng</button>
+
+                </form>
+
+            </div>
+            <div id="listImageVideo">
+            </div>
+        </div>
+
+    </div><!-- add post new box -->
+    <div class="loadMore">
+        @foreach (var post in Model.Posts)
+        {
+            <div class="central-meta item">
+                <div class="user-post">
+                    <div class="friend-info">
+                        <figure>
+                            <img src="~/image/upload/@post.IdUserNavigation.Avatar" alt="sdasd">
+                        </figure>
+                        <div class="friend-name">
+                            <div class="more">
+                                @* nếu id_user == session id thì hiển thị nút điều hướng post *@
+                                @if (ViewContext.HttpContext.Session.GetString("UserId") == post.IdUserNavigation.Id.ToString() || ViewContext.HttpContext.Session.GetString("Role") == "1")
+                                {
+                                    <div class="more-post-optns">
+                                        <i class="ti-more-alt"></i>
+                                        <ul>
+                                            <li>
+                                                <i class="fa fa-pencil-square-o"></i><a href="/Post/Edit?postId=@post.Id">Sửa bài</a>
+                                            </li>
+                                            <li><i class="fa fa-trash-o"></i><a href="/Post/Delete?postId=@post.Id">Xoá bài</a></li>
+                                        </ul>
+                                    </div>
+                                }
+
+                            </div>
+                            <ins><a href="time-line.html" title="">@post.IdUserNavigation.Username</a></ins>
+                            @* format time *@
+                            @{
+                                var currentTime = DateTime.Now;
+                                var postTime = post.DatePost;
+                                var timeDifference = currentTime - postTime;
+
+                                // Đặt ngôn ngữ thành tiếng Việt
+                                var culture = new CultureInfo("vi-VN");
+
+                                // Định dạng thời gian
+                                var formattedTime = timeDifference.HasValue
+                                ? FormatTimeDifference(timeDifference.Value, culture)
+                                : string.Empty;
+
+                            }
+
+                            <span>Công khai <i class="fa fa-globe"></i> @formattedTime</span>
+
+                        </div>
+                        <div class="post-meta">
+                            <figure>
+                                <style>
+                                    .overlay {
+                                        position: absolute;
+                                        top: 50%;
+                                        left: 50%;
+                                        transform: translate(-50%, -50%);
+                                    }
+                                </style>
+
+                                <div class="img-bunch">
+                                    <div class="row">
+                                        @{
+                                            var imageFileNames = imageHelper.GetImageFileNames(post.Filename).ToList();
+                                            var displayedCount = Math.Min(imageFileNames.Count, 6);
+                                            var isSingleColumn = imageFileNames.Count < 2;
+                                            var columnClass = isSingleColumn ? "col-lg-12 col-md-12 col-sm-12" : "col-lg-6 col-md-6 col-sm-6";
+
+                                        }
+
+                                        @for (var i = 0; i < displayedCount; i++)
+                                        {
+                                            var fileName = imageFileNames[i];
+                                            var isVideo = fileName.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
+                                            fileName.EndsWith(".webm", StringComparison.OrdinalIgnoreCase) ||
+                                            fileName.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase);
+
+                                            <div class="@columnClass">
+                                                <figure>
+                                                    <a href="#" title="" data-toggle="modal" data-target="#img-comt">
+                                                        @if (isVideo)
+                                                        {
+                                                            <video controls style="border-radius: 5px; width: 100%;">
+                                                                <source src="~/image/upload/@fileName" type="video/mp4">
+                                                                Your browser does not support the video tag.
+                                                            </video>
+                                                        }
+                                                        else
+                                                        {
+                                                            <img src="~/image/upload/@fileName" alt="">
+                                                        }
+                                                    </a>
+                                                </figure>
+                                            </div>
+
+                                            @if (i == 5 && imageFileNames.Count > 6)
+                                            {
+                                                <div class="@columnClass overlay">
+                                                    <figure>
+                                                        <a href="/Group/DetailPost?postId=@post.Id" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                                            <div>
+                                                                <span style="color: #000; font-size: 50px">+@(imageFileNames.Count - 6)</span>
+                                                            </div>
+                                                        </a>
+                                                    </figure>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+
+                                <ul class="like-dislike">
+                                    <li>
+                                        <a class="bg-purple" href="#"
+                                           title="Save to Pin Post">
+                                            <i class="fa fa-thumb-tack"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="bg-blue" href="#" title="Like Post">
+                                            <i class="ti-thumb-up"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="bg-red" href="#" title="dislike Post">
+                                            <i class="ti-thumb-down"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </figure>
+                            <div class="description">
+
+                                <p>
+                                    @post.Contents
+                                </p>
+                            </div>
+                            
+                            <div class="we-video-info">
+                                <ul>
+                                    <li>
+                                        <div class="likes_@post.Id heart" title="Like/Dislike">
+                                            ❤
+                                            <span id="likeCount"> @post.LikeCount</span>
+
+                                        </div>
+                                    </li>
+
+                                    <li>
+                                        <span class="comment" title="Comments">
+                                            <i class="fa fa-commenting"></i>
+                                            <ins>@post.CommentCount</ins>
+                                        </span>
+                                    </li>
+
+                                </ul>
+                                <script>
+                                    $(document).ready(function () {
+                                        $(".likes_@post.Id").on("click", function () {
+                                            var postId = @post.Id; // Sử dụng giá trị từ Razor để lấy Id của bài viết
+                                            var userIdString = "@ViewContext.HttpContext.Session.GetString("UserId")";
+                                            // Chuyển đổi chuỗi thành số nguyên
+                                            var userId = parseInt(userIdString, 10);
+                                            var isLiked = $(this).data("isliked");
+                                            // AJAX để kiểm tra xem người dùng đã like hay chưa
+
+                                            $.ajax({
+                                                type: "POST",
+                                                url: "/Group/LikePost",
+                                                data: { postId: postId, userId: userId },
+                                                success: function (data) {
+                                                    // Load lại trang hiện tại
+                                                    location.reload();
+                                                },
+                                                error: function (error) {
+                                                    console.error("Error:", error);
+                                                }
+                                            });
+                                        });
+                                    });
+                                </script>
+                                <!-- Hiển thị danh sách top likers nếu cần -->
+                                <div class="users-thumb-list">
+                                    @if (post.Likes.Any())
+                                    {
+                                        @foreach (var liker in post.Likes.Select(l => l.IdUserNavigation).Distinct().Take(5))
+                                        {
+                                            <a data-toggle="tooltip" title="@liker.Username" href="#">
+                                                <img width="35px" alt="" src="~/image/upload/@liker.Avatar">
+                                            </a>
+                                        }
+
+                                        @if (post.Likes.Count > 3)
+                                        {
+                                            var liker_conlai = post.Likes.Select(l => l.IdUserNavigation).Distinct().Count() - 2;
+                                            <span>
+                                                <b>@post.Likes.Select(l => l.IdUserNavigation.Username).Distinct().Take(2).Aggregate((current, next) => current + ", " + next)</b>,
+                                                <a href="#" title="">và @liker_conlai</a> thích
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>
+                                                @post.Likes.Select(l => l.IdUserNavigation.Username).Distinct().Aggregate((current, next) => current + ", " + next)
+                                                thích
+                                            </span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            Chưa có like
+                                        </span>
+                                    }
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="coment-area" style="display: block;">
+                            <ul class="we-comet">
+                                @* list comment *@
+                                <div class="custom-scrollbar-comments">
+                                    @foreach (var comment in post.Comments)
+                                    {
+                                    <li>
+                                        <div class="comet-avatar">
+                                            <img src="~/image/upload/@(comment.IdUserNavigation?.Avatar)" alt="@(comment.IdUserNavigation?.Avatar)">
+
+                                        </div>
+                                        <div class="we-comment">
+                                            <h5>
+                                                <a href="time-line.html" title="">
+                                                    @comment.IdUserNavigation?.Username
+                                                </a>
+                                            </h5>
+                                                @{
+                                                    var currentTime_comment = DateTime.Now;
+                                                    var commentTime = post.DatePost;
+                                                    var timeDifference_comment = currentTime_comment - commentTime;
+
+                                                    // Đặt ngôn ngữ thành tiếng Việt
+                                                    var culture_comment = new CultureInfo("vi-VN");
+
+                                                    // Định dạng thời gian
+                                                    var formattedTime_comment = timeDifference.HasValue
+                                                    ? FormatTimeDifference(timeDifference.Value, culture)
+                                                    : string.Empty;
+
+                                                    var LikeCountComment = db.LikeComments.Count(lc => lc.IdComment == comment.Id);
+                                                }
+                                            <div class="inline-itms">
+                                                <span>@formattedTime_comment</span>
+                                                <a class="we-reply" href="/Comment/Edit?id=@comment.Id" title="Reply"> <i class="fa fa-pencil-square-o"></i></a>
+                                                    @if (comment.IdUser?.ToString() == ViewContext.HttpContext.Session.GetString("UserId") || ViewContext.HttpContext.Session.GetString("Role") == "1")
+                                                    {
+                                                    <a href="/Comment/Delete?id=@comment.Id" title=""><i class="fa fa-trash-o"></i></a>
+                                                    }
+                                                <a href="" title="" class="likesComment_@comment.Id"><i class="fa fa-heart"></i><span id="likeCount">@LikeCountComment</span></a>
+                                            </div>
+                                            <script>
+                                                $(document).ready(function () {
+                                                    $(".likesComment_@comment.Id").on("click", function () {
+                                                        var commentId = @comment.Id; // Sử dụng giá trị từ Razor để lấy Id của bài viết
+                                                        var userIdString = "@ViewContext.HttpContext.Session.GetString("UserId")";
+                                                        // Chuyển đổi chuỗi thành số nguyên
+                                                        var userId = parseInt(userIdString, 10);
+                                                      
+                                                        // AJAX để kiểm tra xem người dùng đã like hay chưa
+
+                                                        $.ajax({
+                                                            type: "POST",
+                                                            url: "/Group/LikeComment",
+                                                            data: { commentId: commentId, userId: userId },
+                                                            success: function (data) {
+                                                                console.log(data)
+                                                                // Load lại trang hiện tại
+                                                                location.reload();
+
+                                                            },
+                                                            error: function (error) {
+                                                                console.error("Error:", error);
+                                                            }
+                                                        });
+                                                    });
+                                                });
+                                            </script>
+                                            <p>
+                                                    @comment.Contents
+                                            </p>
+                                            <br>
+                                            <!-- Các thông tin khác của comment -->
+                                            <!-- Hiển thị các hình ảnh hoặc video của comment -->
+                                                @foreach (var fileName in imageHelper.GetImageFileNames(comment.Img))
+                                                {
+                                                    var isVideo = fileName.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
+                                                    fileName.EndsWith(".webm", StringComparison.OrdinalIgnoreCase) ||
+                                                    fileName.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase);
+
+                                                    if (isVideo)
+                                                    {
+                                                    <video controls style="margin-top: 10px; border-radius: 5px; width: 130px">
+                                                        <source src="~/image/upload/@fileName" type="video/mp4">
+                                                        <!--Thêm các nguồn khác nếu cần-->
+                                                        Your browser does not support the video tag.
+                                                    </video>
+                                                    }
+                                                    else
+                                                    {
+                                                    <img style="margin-top: 10px; border-radius: 5px; width: 130px" src="~/image/upload/@fileName" alt="">
+                                                    }
+                                                }
+                                        </div>
+
+                                    </li>
+
+                                    }
+
+                                <li class="post-comment">
+                                    <div class="comet-avatar">
+                                        <img src="~/image/upload/@ViewContext.HttpContext.Session.GetString("Avatar")" alt="">
+                                    </div>
+                                    <div class="post-comt-box">
+                                        <form method="post" action="/Group/Comment" enctype="multipart/form-data">
+                                            <input name="IdPost" value="@post.Id" type="hidden" />
+                                            <input name="IdUser" value="@ViewContext.HttpContext.Session.GetString("UserId")" type="hidden" />
+                                            <textarea placeholder="Viết bình luận của bạn" name="Contents" required></textarea>
+                                            <div class="add-smiles">
+                                                <div class="uploadimage" style="margin-right: 10px">
+                                                    <i class="fa fa-image"></i>
+                                                    <label class="fileContainer">
+                                                        <input type="file" name="FilesComment" accept="image/*" multiple onchange="handleFiles(this.files, 'lstVideoImage_Comment_@post.Id')">
+
+                                                    </label>
+                                                </div>
+                                                <div class="uploadimage" style="margin-right: 77px">
+                                                    <i class="fa fa-video-camera"></i>
+                                                    <label class="fileContainer">
+                                                        <input type="file" name="FilesComment" accept="video/*" multiple onchange="handleFiles(this.files, 'lstVideoImage_Comment_@post.Id')">
+                                                    </label>
+                                                </div>
+
+                                                <button type="submit" class="btn btn-danger" style="color: #000"><i 4 class="fa fa-paper-plane"></i></button>
+
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+                                    <div class="lstVideoImage_Comment" id="lstVideoImage_Comment_@post.Id">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- digital sponsors -->
+        }
+    </div>
+</div><!-- centerl meta -->
+<script src="~/layoutuser/js/loadvideoimgpost.js"></script>

@@ -1,0 +1,56 @@
+﻿@model WebShare.Models.User
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+}
+
+<link href="~/layoutuser/css/loadvideoimgpost.css" rel="stylesheet" />
+
+<div class="col-lg-9">
+    <div class="central-meta">
+        <span class="create-post">Thông tin tài khoản</span>
+        <div class="page-createbox">
+            <form method="post" action="/User/Edit" enctype="multipart/form-data" class="c-form">
+                <div class="row">
+                    <input name="id" type="hidden" value="@Model.Id">
+                    <div class="col-lg-12">
+                        <label class="control-label">Mật khẩu</label>
+
+                    <input name="Password" type="password" required>
+                    </div>
+                    <div class="col-lg-12">
+                        <label class="control-label">Ảnh đại diện</label>
+                        
+                        <i class="fa fa-video-camera" style="display: none"></i>
+                        <label class="fileContainer">
+                            <input type="file" name="Files" accept="image/*" multiple onchange="handleFiles(this.files, 'listImageVideo')">
+
+                        </label>
+                        <i class="fa fa-image"></i>
+                        <label class="fileContainer">
+                            <input type="file" name="Files" accept="image/*" multiple onchange="handleFiles(this.files, 'listImageVideo')">
+
+                        </label>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    @if (Model.Avatar != null)
+                    {
+                        <img src="~/image/upload/@Model.Avatar" />
+                    }
+                </div>
+                <div class="col-lg-12" id="listImageVideo">
+                </div>
+
+                <div class="col-lg-12">
+                    <button class="main-btn" type="submit" data-ripple="">Lưu</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script src="~/layoutuser/js/loadvideoimgpost.js"></script>
+
+

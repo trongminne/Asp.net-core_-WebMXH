@@ -1,0 +1,84 @@
+﻿@model WebShare.Models.Comment
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+}
+
+<link href="~/layoutuser/css/loadvideoimgpost.css" rel="stylesheet" />
+
+<div class="col-lg-9">
+    <div class="central-meta">
+        <span class="create-post">Sửa Bình luận</span>
+        <div class="page-createbox">
+            <form method="post" action="/Comment/Edit" enctype="multipart/form-data" class="c-form">
+                <div class="row">
+                    <input name="id" type="hidden" value="@Model.Id">
+                    <input name="IdPost" type="hidden" value="@Model.IdPost">
+
+                    <input asp-for="IdUser" type="hidden" value="@ViewContext.HttpContext.Session.GetString("UserId")">
+
+                    <br />
+                    <div class="col-lg-12">
+                        <label class="control-label">Nội dung Bình luận</label>
+                        <input name="Contents" type="text" placeholder="Nhập nội dung Bình luận" value="@Model.Contents" required>
+                    </div>
+                    <div class="col-lg-12">
+                        <label class="control-label">Hình ảnh | Video</label>
+                        <i class="fa fa-video-camera" style="display: none"></i>
+                        <label class="fileContainer">
+                            <input type="file" name="Files" accept="video/*" onchange="handleFiles(this.files, 'listImageVideo')">
+                        </label>
+                        <i class="fa fa-video-camera"></i>
+                        <label class="fileContainer">
+                            <input type="file" name="Files" accept="image/*" multiple onchange="handleFiles(this.files, 'listImageVideo')">
+
+                        </label>
+                        <i class="fa fa-image"></i>
+                        <label class="fileContainer">
+                            <input type="file" name="Files" accept="image/*" multiple onchange="handleFiles(this.files, 'listImageVideo')">
+
+                        </label>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    @if (Model.Img != null)
+                    {
+                        foreach (var Img in Model.Img.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            <div class="image-video-preview">
+                                @if (Img.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
+                               Img.EndsWith(".webm", StringComparison.OrdinalIgnoreCase) ||
+                               Img.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <video controls style="width: 100%; border-radius: 10px">
+                                        <source src="~/image/upload/@Img.Trim()" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                }
+                                else
+                                {
+                                    <img src="~/image/upload/@Img.Trim()" />
+                                }
+                            </div>
+                        }
+
+                    }
+                </div>
+                <div class="col-lg-12" id="listImageVideo">
+                </div>
+
+                <div class="col-lg-12">
+                    <button class="main-btn" type="submit" data-ripple="">Lưu</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script src="~/layoutuser/js/loadvideoimgpost.js"></script>
+
+
+
+
+

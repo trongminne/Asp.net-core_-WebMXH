@@ -1,0 +1,54 @@
+﻿@using System.Web;
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="~/layoutuser/gin/style.css" rel="stylesheet" />
+    @* Hộp thoại thông báo *@
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <title>Thảo luận kiến thức sinh viên IT SDU</title>
+</head>
+
+<body>
+    <video autoplay loop muted>
+        <source src="~/layoutUser/gin/bg.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    @RenderBody()
+    @RenderSection("Scripts", required: false)
+
+    <script src="~/layoutuser/gin/script.js"></script>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: "success",
+                title: "Thành công!",
+                html: "@Html.Raw(HttpUtility.JavaScriptStringEncode(TempData["SuccessMessage"].ToString()))",
+                showCancelButton: true,
+                cancelButtonText: "Cancel"
+            })
+        </script>
+    }
+
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: "error",
+                title: "Thất bại!",
+                text: "@Html.Raw(HttpUtility.JavaScriptStringEncode(TempData["ErrorMessage"].ToString()))",
+            })
+
+        </script>
+    }
+</body>
+
+</html>

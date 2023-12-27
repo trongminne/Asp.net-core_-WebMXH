@@ -1,0 +1,12 @@
+﻿.lstVideoImage_Comment {
+    top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+    .lstVideoImage_Comment img,
+    .lstVideoImage_Comment video {
+        border-radius: 5px;
+        width: 150px;
+        margin: 0 10px 10px 0;
+    }

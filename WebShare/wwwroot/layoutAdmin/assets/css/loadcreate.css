@@ -1,0 +1,32 @@
+﻿.image-upload-container {
+    display: flex;
+    align-items: center;
+}
+
+    .image-upload-container img {
+        max-width: 200px;
+        max-height: 150px;
+        margin-left: 10px;
+        border-radius: 5px;
+    }
+
+#previewImage {
+    display: none;
+    max-width: 200px;
+    border-radius: 5px;
+}
+
+#previewImage1 {
+    display: none;
+    max-width: 200px;
+}
+
+#previewImage2 {
+    display: none;
+    max-width: 200px;
+}
+
+#previewImage3 {
+    display: none;
+    max-width: 200px;
+}
